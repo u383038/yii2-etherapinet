@@ -6,7 +6,7 @@
   "license": "BSD-3-Clause",
   "authors": [
     {
-      "name": "383038",
+      "name": "u383038",
       "email": "antonsolodkov66@gmail.com"
     }
   ],
@@ -17,7 +17,7 @@
   },
   "autoload": {
     "psr-4": {
-      "383038\\ethapi\\": ""
+      "u383038\\eth\\": ""
     }
   }
 }
