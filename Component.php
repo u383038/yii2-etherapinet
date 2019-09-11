@@ -14,134 +14,74 @@ class Component extends \yii\base\Component
 
     const URL = 'https://etherapi.net/api/v2';
 
-
     public function init()
     {
         parent::init();
-        if(!$this->apiSecretKey === null)
+        if($this->apiSecretKey === null)
         {
             throw new InvalidConfigException("Need set apiSecretKey");
         }
     }
 
-
     /**
-     * @param string|null $uniqID
-     * @param string|null $token
-     * @param string|null $address
-     * @param string|null $tag
-     * @param string|null $statusURL
-     * @return bool|string
+     * Create a wallet for accept payments
+     * @param array $params
+     * @return bool|mixed
      * @throws HttpException
      */
-    public function createWallet(string $uniqID = null, string $token = null, string $address = null,
-                                 string $tag = null, string $statusURL = null)
+    public function createWallet(array $params)
     {
-        $response = $this->createRequest($data = [
-            'method' => 'give',
-            'tag' => $tag,
-            'token' => $token,
-            'statusURL' => $statusURL,
-            'uniqID' => $uniqID,
-            'address' => $address
+        $response = $this->createRequest($params, $method = 'give');
 
-        ]);
+        if($response['result']) return $response['result'];
 
+        if(YII_DEBUG) throw new HttpException("wallet did not created");
 
-        if($response['result'])
-        {
-            return $response['result'];
-        }
-
-        if(YII_DEBUG)
-        {
-            throw new HttpException("wallet did not created");
-        }
         return false;
-
-
     }
 
     /**
      * Get the total balance of all your wallets
-     *
      * @return string
      */
     public function getBalance() : string
     {
-
-        $response = $this->createRequest($data = [
-            'method' => 'balance'
-        ]);
-
+        $response = $this->createRequest($params = [], $method = 'balance');
         return $response['result'];
     }
 
-
     /**
-     * @param string $address
-     * @param float $amount
-     * @param string $tag
-     * @param string $token
-     * @param string $statusURL
-     * @param string $uniqID
+     * Expect a certain payment
+     * @param array $params
+     * @return array
      */
-    public function setTrack(string $address, float $amount, string $tag,
-                             string $token = '',  string $uniqID = '', string $statusURL = '')
+    public function setTrack(array $params)
     {
-
-        $this->createRequest($data = [
-            'method' => 'track',
-            'address' => $address,
-            'amount' => $amount,
-            'tag' => $tag,
-            'token' => $token,
-            'statusURL' => $statusURL,
-            'uniqID' => $uniqID
-
-        ]);
+        $response = $this->createRequest($params, $method = 'track');
+        return $response;
     }
 
+
     /**
-     * @param string $address
-     * @param float $amount
-     * @param float $price
-     * @param int $limit
-     * @param string $tag
-     * @param string $uniqID
-     * @param string $token
-     * @param string $statusURL
-     * @param int $returnTransaction
+     * @param array $params
      * @return int
      */
-    public function send(string $address, float $amount, float $price, int $limit, string $tag,
-                         string $uniqID = '', string $token, string $statusURL, int $returnTransaction) : int
+    public function send(array $params) : int
     {
-        $response = $this->createRequest($data = [
-            'method' => 'track',
-            'address' => $address,
-            'amount' => $amount,
-            'price' => $price,
-            'limit' => $limit,
-            'returnTransaction' => $returnTransaction,
-            'tag' => $tag,
-            'token' => $token,
-            'statusURL' => $statusURL,
-            'uniqID' => $uniqID
-        ]);
-
+        $response = $this->createRequest($params, $method = 'send');
         return $response['result'];
-
     }
 
     /**
      * @param array $data
+     * @param string $method
      * @return array
      */
-    private function createRequest(array $data) : array
+    private function createRequest(array $data, string $method) : array
     {
-
+        $data = array_diff($data, array(''));
         $data['key'] = $this->apiSecretKey;
+        $data['method'] = $method;
 
         $client = new Client();
         $response = $client->createRequest()
@@ -150,9 +90,7 @@ class Component extends \yii\base\Component
             ->setData($data)
             ->send();
 
-
         return $response->data;
-
     }
 
     /**
@@ -161,7 +99,6 @@ class Component extends \yii\base\Component
      */
     public function generateSign(array $data) : string
     {
-
         unset($data['etherapi.net']);
         unset($data['sign']);
         $data[] = $this->apiSecretKey;
@@ -171,7 +108,6 @@ class Component extends \yii\base\Component
         );
 
         return $sign;
-
     }
 
 }
