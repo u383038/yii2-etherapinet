@@ -1,6 +1,6 @@
 {
-  "name": "u383038/yii2-eth-api",
-  "description": "Extension for integration Ethereum in yii2 project",
+  "name": "u383038/yii2-etherapi",
+  "description": "Extension for integration Ethereum(Etherapi.net) in yii2 project",
   "type": "yii2-extension",
   "keywords": ["yii2","extension","ethereum", "eth"],
   "license": "BSD-3-Clause",
